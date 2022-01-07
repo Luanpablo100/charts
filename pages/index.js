@@ -1,6 +1,6 @@
 import Head from 'next/head'
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 import { Chart } from "react-google-charts";
 
@@ -13,12 +13,19 @@ export default function Home() {
 
   const countrys = ["BR","AR","CO","PE","CL","VE","BO","UY","GY","SR","PY","TT","EC"]
 
-  const population = []
+  let population = [
+    ['Country', 'Population'],
+  ]
+
+  const [data, setData] = useState([
+    ['Country', 'Population'],
+  ])
 
   const getCountys = async () => {
-    countrys.map(async(country) => {
-      const response = await (await fetch(`https://servicodados.ibge.gov.br/api/v1/paises/${country}/indicadores/77849`)).json()
+    countrys.map(async (country) => {
 
+      const response = await (await fetch(`https://servicodados.ibge.gov.br/api/v1/paises/${country}/indicadores/77849`)).json()
+  
       const newCountries = {
         nome: response[0].series[0].pais.nome,
         population: response[0].series[0].serie[response[0].series[0].serie.length - 1]
@@ -31,35 +38,23 @@ export default function Home() {
       newCountries.nome === 'Colômbia' ? newCountries.nome = 'Colombia' : newCountries.nome
       newCountries.nome === 'Equador' ? newCountries.nome = 'Ecuador' : newCountries.nome
       newCountries.nome === 'Guiana' ? newCountries.nome = 'Guyana' : newCountries.nome
-      // newCountries.nome === 'Brasil' ? newCountries.nome = 'Brazil' : null
-      // newCountries.nome === 'Brasil' ? newCountries.nome = 'Brazil' : null
-      // newCountries.nome === 'Brasil' ? newCountries.nome = 'Brazil' : null
-      // newCountries.nome === 'Brasil' ? newCountries.nome = 'Brazil' : null
-      console.log(newCountries)
-      population.push(newCountries)
-    })
-  }
 
+      const formatedCountrie = [
+        newCountries.nome,
+        parseInt(newCountries.population['2020'])
+      ]
 
-  function setNewChart() {
-    const formatCountries = population.map(pop => {
-      const obj = [pop.nome, pop.population['2020']]
-      return obj
+      population.push(formatedCountrie)
     })
 
-    const newData = [
-      ['Country', "Popularity"],
-      ...formatCountries
-    ]
-
-    setData(newData)
   }
 
-  const [data, setData] = useState([
-    ['País', 'Pessoas'],
-  ])
+  useEffect(() => {
+    getCountys().then(setData(population))
 
-  getCountys()
+  }, [])
+
+
   return (
     <div className="flex flex-col items-center justify-center min-h-screen py-2">
       <Head>
@@ -79,7 +74,6 @@ export default function Home() {
             data={data}
             options={options}
           />
-          <button onClick={setNewChart}>Exibit</button>
         </div>
       </main>
     </div>
