@@ -7,30 +7,59 @@ import { Chart } from "react-google-charts";
 export default function Home() {
 
   const [options, setOptions] = useState({
-    title: 'Gráfico de Pizza',
+    title: 'Gráfico de Geo',
+    region: '005'
   })
 
-  async function getUsers() {
-    const users = await (await fetch('https://jsonplaceholder.typicode.com/users')).json()
-    const newUsers = {
-      name: users[1].name,
-      geo: users[1].address.geo
-    }
+  const countrys = ["BR","AR","CO","PE","CL","VE","BO","UY","GY","SR","PY","TT","EC"]
 
-    const userContry = await (await fetch(`https://maps.googleapis.com/maps/api/geocode/json?latlng=${newUsers.geo.lat},${newUsers.geo.lng}&key=AIzaSyB3o-bJxcxHUls1973PoaBcMkKkg2wx5w8`)).json()
+  const population = []
 
-    console.log(newUsers)
-    console.log(userContry)
+  const getCountys = async () => {
+    countrys.map(async(country) => {
+      const response = await (await fetch(`https://servicodados.ibge.gov.br/api/v1/paises/${country}/indicadores/77849`)).json()
+
+      const newCountries = {
+        nome: response[0].series[0].pais.nome,
+        population: response[0].series[0].serie[response[0].series[0].serie.length - 1]
+      }
+
+      newCountries.nome === 'Brasil' ? newCountries.nome = 'Brazil' : newCountries.nome
+      newCountries.nome === 'Paraguai' ? newCountries.nome = 'Paraguay' : newCountries.nome
+      newCountries.nome === 'Bolívia' ? newCountries.nome = 'Bolivia' : newCountries.nome
+      newCountries.nome === 'Uruguai' ? newCountries.nome = 'Uruguay' : newCountries.nome
+      newCountries.nome === 'Colômbia' ? newCountries.nome = 'Colombia' : newCountries.nome
+      newCountries.nome === 'Equador' ? newCountries.nome = 'Ecuador' : newCountries.nome
+      newCountries.nome === 'Guiana' ? newCountries.nome = 'Guyana' : newCountries.nome
+      // newCountries.nome === 'Brasil' ? newCountries.nome = 'Brazil' : null
+      // newCountries.nome === 'Brasil' ? newCountries.nome = 'Brazil' : null
+      // newCountries.nome === 'Brasil' ? newCountries.nome = 'Brazil' : null
+      // newCountries.nome === 'Brasil' ? newCountries.nome = 'Brazil' : null
+      console.log(newCountries)
+      population.push(newCountries)
+    })
+  }
+
+
+  function setNewChart() {
+    const formatCountries = population.map(pop => {
+      const obj = [pop.nome, pop.population['2020']]
+      return obj
+    })
+
+    const newData = [
+      ['Country', "Popularity"],
+      ...formatCountries
+    ]
+
+    setData(newData)
   }
 
   const [data, setData] = useState([
     ['País', 'Pessoas'],
-    ['Brazil', 100],
-    ['United States', 50],
   ])
 
-  getUsers()
-
+  getCountys()
   return (
     <div className="flex flex-col items-center justify-center min-h-screen py-2">
       <Head>
@@ -44,12 +73,13 @@ export default function Home() {
         </h1>
         <div>
           <Chart
-            width={'500px'}
-            height={'300px'}
+            width={'700px'}
+            height={'500px'}
             chartType="GeoChart"
             data={data}
             options={options}
           />
+          <button onClick={setNewChart}>Exibit</button>
         </div>
       </main>
     </div>
