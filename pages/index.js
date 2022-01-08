@@ -62,14 +62,14 @@ export default function Home() {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main className="flex flex-col items-center justify-center w-full flex-1 px-20 text-center">
-        <h1 className="text-6xl font-bold mb-2">
+      <main className="flex flex-col items-center justify-center w-screen flex-1 text-center">
+        <h1 className="text-3xl lg:text-6xl font-bold mb-2">
           População da América Latina
         </h1>
-        <div>
+        <div className='p-2 w-screen md:w-auto'>
           <Chart
-            width={'700px'}
-            height={'500px'}
+            width={'auto'}
+            height={'auto'}
             chartType="GeoChart"
             data={data}
             options={options}
